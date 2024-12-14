@@ -1,8 +1,11 @@
 import Component from '@glimmer/component';
+import { tracked } from '@glimmer/tracking';
 import type { TOC } from '@ember/component/template-only';
 import type { EmptyObject } from '@ember/component/helper';
 import type { WithBoundArgs } from '@glint/template';
 import { hash } from '@ember/helper';
+import { on } from '@ember/modifier';
+import { action } from '@ember/object';
 import type { RouteModel } from '@ember/routing/router-service';
 import UiBaseLink from '../ui-base-link';
 import UiIcon from '../ui-icon';
@@ -18,16 +21,24 @@ interface UiListItemSignature {
   };
   Blocks: {
     default: [];
+    content: [];
   };
 }
 
 class UiListItem extends Component<UiListItemSignature> {
+  @tracked expanded = false;
+
   get isLink() {
     return this.args.href || this.args.route;
   }
 
+  @action
+  toggleExpanded() {
+    this.expanded = !this.expanded;
+  }
+
   <template>
-    <li class='relative {{unless this.isLink "py-5 px-4"}}' ...attributes>
+    <li class='relative' ...attributes>
       {{#if this.isLink}}
         <UiBaseLink
           @href={{@href}}
@@ -41,7 +52,28 @@ class UiListItem extends Component<UiListItemSignature> {
           <UiIcon @icon='chevron-right' class='text-gray-400' />
         </UiBaseLink>
       {{else}}
-        {{yield}}
+        {{#if (has-block 'content')}}
+          <button
+            type='button'
+            class='py-5 px-4 w-full flex justify-between items-center gap-x-6 text-left hover:bg-gray-50'
+            {{on 'click' this.toggleExpanded}}
+          >
+            <span>{{yield}}</span>
+            <span class='transition text-gray-400 {{if this.expanded "-rotate-180"}}'>
+              <UiIcon @icon='chevron-down' />
+            </span>
+          </button>
+
+          {{#if this.expanded}}
+            <div class='mt-1'>
+              {{yield to='content'}}
+            </div>
+          {{/if}}
+        {{else}}
+          <div class='py-5 px-4'>
+            {{yield}}
+          </div>
+        {{/if}}
       {{/if}}
     </li>
   </template>

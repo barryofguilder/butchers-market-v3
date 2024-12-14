@@ -8,23 +8,32 @@
   </UiButton>
 </div>
 
-<Admin::UiTable class="mt-8" as |Table|>
-  <Table.Head as |Thead|>
-    <Thead.Th>Title</Thead.Th>
-    <Thead.Th>Sold Out?</Thead.Th>
-    <Thead.Th />
-  </Table.Head>
-  <Table.Body as |Tbody|>
-    {{#each this.model as |item|}}
-      <Tbody.Tr as |Row|>
-        <Row.Td>
-          {{item.title}}
-        </Row.Td>
-        <Row.Td>
-          {{if item.isSoldOut "Yes" "No"}}
-        </Row.Td>
-        <Row.Td>
-          <div class="flex justify-end">
+<Admin::UiList class="max-w-lg mt-8" as |List|>
+  {{#each (sort-by "title" this.model) as |item|}}
+    <List.Item>
+      <:default>
+        <p class="flex gap-y-1 flex-col sm:flex-row sm:gap-x-2 sm:gap-y-0 sm:items-center">
+          <p class="font-semibold">
+            {{item.title}}
+          </p>
+
+          {{#if item.isSoldOut}}
+            <p>
+              <Admin::UiBadge @color="red">
+                Sold Out
+              </Admin::UiBadge>
+            </p>
+          {{/if}}
+        </p>
+      </:default>
+
+      <:content>
+        <div class="py-2 px-4 flex justify-between">
+          <div>
+            <Admin::GrabAndGo::MiniForm @item={{item}} />
+          </div>
+
+          <div>
             <UiButton
               @route="admin.grab-and-go.edit"
               @model={{item.id}}
@@ -41,15 +50,17 @@
               @onClick={{fn this.openDeleteModal item}}
             />
           </div>
-        </Row.Td>
-      </Tbody.Tr>
-    {{else}}
-      <Tbody.Empty>
+        </div>
+      </:content>
+    </List.Item>
+  {{else}}
+    <List.Item>
+      <p class="text-gray-500">
         No grab and go items found.
-      </Tbody.Empty>
-    {{/each}}
-  </Table.Body>
-</Admin::UiTable>
+      </p>
+    </List.Item>
+  {{/each}}
+</Admin::UiList>
 
 <Admin::GrabAndGo::DeleteItemForm
   @isOpen={{this.deleteModalOpen}}

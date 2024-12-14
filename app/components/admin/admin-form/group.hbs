@@ -9,6 +9,7 @@
 <div class={{if this.useDefaultMargin "mb-6"}} ...attributes>
   {{yield
     (hash
+      checkbox=(component "admin/admin-form/checkbox")
       datepicker=(component "admin/admin-form/datepicker" id=this.uniqueId errors=this.errors)
       help=(component "admin/admin-form/help")
       label=(component "admin/admin-form/label" for=this.uniqueId errors=this.errors)
